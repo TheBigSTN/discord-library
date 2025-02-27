@@ -1,12 +1,11 @@
 import { Events, Interaction } from "discord.js";
-import { commands } from "../startup/commands"
 
 module.exports = {
 	name: Events.InteractionCreate,
 	async execute(interaction: Interaction) {
 		if (!interaction.isChatInputCommand()) return;
 
-		const command = commands.get(interaction.commandName);
+		const command = interaction.client.commands.get(interaction.commandName);
 
 		if (!command) {
 			console.error(`No command matching ${interaction.commandName} was found.`);

@@ -1,7 +1,13 @@
-import { RESTPostAPIChatInputApplicationCommandsJSONBody, CommandInteraction, SlashCommandBuilder } from "discord.js";
+import { ApplicationCommandOptionAllowedChannelTypes, Collection, CommandInteraction, LocalizationMap, RESTPostAPIChatInputApplicationCommandsJSONBody } from "discord.js";
+
+declare module "discord.js" {
+    export interface Client {
+        commands: Collection<string, CommandObj>;
+    }
+}
 
 /**
- * @description It's the transpiled veriant that contains the command file and it's loadied into the Discordbot class
+ * It's the transpiled variant that contains the command file and it's loaded into the Discordbot class
 */
 export interface CommandObj {
     data: RESTPostAPIChatInputApplicationCommandsJSONBody
@@ -9,38 +15,11 @@ export interface CommandObj {
     execute(interaction: CommandInteraction): Promise<void>
 }
 
-export interface Commandfile {
-    data: Command
-    guild?: string[]
-    execute(interaction: CommandInteraction): Promise<void>;
-}
-
-export interface Commandfile_Old {
-    data: SlashCommandBuilder;
-    guild?: string[]
-    execute(interaction: CommandInteraction): Promise<void>;
-}
-
-export class Commandfile {
-    constructor(data: Commandfile) {
-        this.data = data.data
-        this.guild = data.guild
-        this.execute = data.execute
-    }
-}
-
-
-export class Commandfile_Old {
-    constructor(data: Commandfile_Old) {
-        this.data = data.data
-        this.guild = data.guild
-        this.execute = data.execute
-    }
-}
-
 export interface SharedProp {
     name: string
+    name_localizations: LocalizationMap
     description?: string
+    description_localizations: LocalizationMap
 }
 
 export interface Command extends SharedProp, Option {
@@ -48,10 +27,9 @@ export interface Command extends SharedProp, Option {
     subcommandgroups?: Subcommandgroup[]
 }
 
+export interface Subcommand extends SharedProp, Option { }
 
-interface Subcommand extends SharedProp, Option { }
-
-interface Subcommandgroup extends SharedProp {
+export interface Subcommandgroup extends SharedProp {
     subcommands: Subcommand[]
 }
 
@@ -95,4 +73,3 @@ interface Channel_Option extends SharedProp {
 interface Basic_Option extends SharedProp {
     required?: boolean
 }
-

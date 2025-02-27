@@ -1,0 +1,6 @@
+{
+  "entryPoints": ["src/index.ts"],
+  "out": "docs",
+  "categoryOrder": ["Getting Started", "Installation", "Usage"],
+  "projectDocuments": ["./docs-source/Getting_Started.md"]
+}
