@@ -53,13 +53,13 @@ export class DiscordBot {
      * - `data`: The actual command data, which is expected to include a `name` property and additional command-related properties. 
      *   This `data` will be transpiled into a `RESTPostAPIChatInputApplicationCommandsJSONBody` format using the `transpiledata` function.
      * - `execute`: A function that defines what the command does when executed. This should be a `Promise` returning function 
-     *   that accepts a `CommandInteraction` parameter.
+     *   that accepts a `ChatInputCommandInteraction` parameter.
      *
      * @param {Commandfile} command - The command object that contains:
      *    - `data`: The command's data, which must include the `name` and optionally other properties like `description`, 
      *      `subcommands`, `options`, etc. 
      *      This `data` will be transpiled into a format compatible with Discord's Slash Commands API.
-     *    - `execute`: A function that is executed when the command is triggered. It should accept a `CommandInteraction` object 
+     *    - `execute`: A function that is executed when the command is triggered. It should accept a `ChatInputCommandInteraction` object 
      *      and return a `Promise<void>`.
      *
      * @throws {Error} If the `command` object is missing the required `data` or `execute` properties, an error will be logged.

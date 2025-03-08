@@ -1,16 +1,13 @@
 import {
-    ApplicationCommandOptionAllowedChannelTypes,
-    CommandInteraction,
-    LocalizationMap,
-    RESTPostAPIChatInputApplicationCommandsJSONBody,
+    ChatInputCommandInteraction,
     SlashCommandBuilder
 } from "discord.js";
 import { transpiledata } from "./commandjson";
 import { Command, CommandObj } from "./types";
 
-interface Base {
+export interface Base {
     guild?: string[]
-    execute(interaction: CommandInteraction): Promise<void>;
+    execute(interaction: ChatInputCommandInteraction): Promise<void>;
 }
 
 export interface Commandfile extends Base {

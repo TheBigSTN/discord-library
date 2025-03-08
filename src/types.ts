@@ -1,4 +1,5 @@
-import { ApplicationCommandOptionAllowedChannelTypes, Collection, CommandInteraction, LocalizationMap, RESTPostAPIChatInputApplicationCommandsJSONBody } from "discord.js";
+import { ApplicationCommandOptionAllowedChannelTypes, Collection, LocalizationMap, RESTPostAPIChatInputApplicationCommandsJSONBody } from "discord.js";
+import { Base } from "./classes";
 
 declare module "discord.js" {
     export interface Client {
@@ -9,10 +10,8 @@ declare module "discord.js" {
 /**
  * It's the transpiled variant that contains the command file and it's loaded into the Discordbot class
 */
-export interface CommandObj {
+export interface CommandObj extends Base {
     data: RESTPostAPIChatInputApplicationCommandsJSONBody
-    guild?: string[]
-    execute(interaction: CommandInteraction): Promise<void>
 }
 
 export interface SharedProp {

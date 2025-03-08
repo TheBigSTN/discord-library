@@ -168,14 +168,14 @@ You can add as many commands paths to the function as you whant.
 To create a valid command file and you use typescript you can use the Commandfile & Commandfile_Old classes to get intelisense when making the file otherwize its not required.
 
 ```ts
-import { CommandInteraction } from "discord.js"
+import { ChatInputCommandInteraction } from "discord.js"
 
 export new CommandFile({
   data:{
     name:"ping",
     description:"Pings you"
   },
-  execute(interaction: CommandInteraction) {
+  execute(interaction: ChatInputCommandInteraction) {
     interaction.reply("Pong")
   }
 })
@@ -187,13 +187,13 @@ The diference between the CommandFile & Commandfile_Old is that in the old varia
 Example:
 
 ```ts
-import { CommandInteraction, SlashCommandBuilder} from "discord.js"
+import { ChatInputCommandInteraction, SlashCommandBuilder} from "discord.js"
 
 export new CommandFile({
   data: new SlashCommandBuilder()
 		.setName("ping")
 		.setDescription("Pings you!"),
-  execute(interaction: CommandInteraction) {
+  execute(interaction: ChatInputCommandInteraction) {
     interaction.reply("Pong")
   }
 })
@@ -214,14 +214,14 @@ bot.loadcommand({
     name: "ping",
     description: "Pings you",
   },
-  execute(interaction: CommandInteraction) {
+  execute(interaction: ChatInputCommandInteraction) {
     interaction.reply("Pong");
   },
 });
 // And
 bot.loadcommand_old({
   data: new SlashCommandBuilder().setName("ping").setDescription("Pings you!"),
-  execute(interaction: CommandInteraction) {
+  execute(interaction: ChatInputCommandInteraction) {
     interaction.reply("Pong");
   },
 });
@@ -249,7 +249,7 @@ You need the exact server/guild id to make this to work
 It works on all the loading commands functions the pakage has so far
 
 ```js
-import { CommandInteraction } from "discord.js"
+import { ChatInputCommandInteraction } from "discord.js"
 
 export new CommandFile({
   data:{
@@ -257,7 +257,7 @@ export new CommandFile({
     description:"Pings you"
   },
   guild: ["809820980285276210"],
-  execute(interaction: CommandInteraction) {
+  execute(interaction: ChatInputCommandInteraction) {
     interaction.reply("Pong")
   }
 })
