@@ -17,7 +17,6 @@ export interface DiscordBotArgs {
 }
 
 export class DiscordBot {
-    private ready = false
     private readonly token: string
     private readonly clientid: string
     readonly client: Client<true>

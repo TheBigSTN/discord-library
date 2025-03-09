@@ -1,8 +1,17 @@
 # V 1.0.0
 
-## V 1.3.0
+## V 1.4.0
 
-### Code
+- Description localizations used setNameLocalizations instead of setDescriptionLocalizations
+- Added Default Command Permisions
+- Added NSFW tag
+- Added Contexts like if the comand is guild or groups or dm
+
+## V 1.3.1
+
+- Fixed the issue where the program was stoped without any way of continuing
+
+## V 1.3.0
 
 - Moved the command Record inside the client with module Augumentation.
 - Fixed a lot of bugs.
@@ -10,7 +19,4 @@
 - Added a EventFile class and loadevent method.
 - If you added custom proprieties to data they were not kept.
 - Added default command handling event.
-
-### Lib
-
 - I need to rework the entire lib :(.

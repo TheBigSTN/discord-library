@@ -20,7 +20,7 @@ import { Discordbot } from ("discord-library")
 const { Discordbot } = require("discord-library")
 ```
 
-After importint the class you need to create an instance of the class with
+After importing the class you need to create an instance of the class with
 
 ```ts
 const bot = new DiscordBot();

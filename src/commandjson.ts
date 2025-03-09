@@ -1,14 +1,31 @@
-import { RESTPostAPIChatInputApplicationCommandsJSONBody, SlashCommandBuilder, SlashCommandSubcommandGroupBuilder, SlashCommandSubcommandBuilder } from "discord.js"
+import { RESTPostAPIChatInputApplicationCommandsJSONBody, SlashCommandBuilder, SlashCommandSubcommandGroupBuilder, SlashCommandSubcommandBuilder, PermissionFlagsBits } from "discord.js"
 import { Command, Subcommandgroup, Subcommand, Option } from "./types"
 
 
 export function transpiledata(data: Command): RESTPostAPIChatInputApplicationCommandsJSONBody {
     let transformed: SlashCommandBuilder = new SlashCommandBuilder()
+    // Information
     transformed.setName(data.name)
     if (data.description) transformed.setDescription(data.description)
+    // Localizations
     if (data.name_localizations) transformed.setNameLocalizations(data.name_localizations)
-    if (data.description_localizations) transformed.setNameLocalizations(data.description_localizations)
+    if (data.description_localizations) transformed.setDescriptionLocalizations(data.description_localizations)
+    // Other
+    if (data.permisions) {
+        const validPermissions = data.permisions
+            .map(permission => PermissionFlagsBits[permission])
+            .filter(Boolean);
 
+        if (validPermissions.length > 0) {
+            transformed.setDefaultMemberPermissions(validPermissions.reduce((acc, curr) => acc | curr, 0n));
+        } else {
+            throw new Error(`Invalid permissions provided for command: ${data.name}`);
+        }
+    }
+    if (data.context) transformed.setContexts(data.context)
+    if (data.nsfw) transformed.setNSFW(data.nsfw)
+
+    //Options
     if (data.subcommandgroups) {
         transformed = format_subcommandGroup(transformed, data.subcommandgroups)
     } else if (data.subcommands) {
@@ -35,7 +52,7 @@ function format_subcommandGroup(command: SlashCommandBuilder, subcommand: Subcom
             s.setName(item.name)
             if (item.description) s.setDescription(item.description)
             if (item.name_localizations) s.setNameLocalizations(item.name_localizations)
-            if (item.description_localizations) s.setNameLocalizations(item.description_localizations)
+            if (item.description_localizations) s.setDescriptionLocalizations(item.description_localizations)
             s = format_subcommand(s, item.subcommands)
             return s
         })
@@ -49,7 +66,7 @@ function format_subcommand<T extends SlashCommandBuilder | SlashCommandSubcomman
             s.setName(item.name)
             if (item.description) { s.setDescription(item.description) }
             if (item.name_localizations) s.setNameLocalizations(item.name_localizations)
-            if (item.description_localizations) s.setNameLocalizations(item.description_localizations)
+            if (item.description_localizations) s.setDescriptionLocalizations(item.description_localizations)
             s = format_options(s, item)
             return s
         })
@@ -83,7 +100,7 @@ function format_options<T extends SlashCommandBuilder | SlashCommandSubcommandBu
                 if (item.description) s.setDescription(item.description);
                 if (item.required !== undefined) s.setRequired(item.required);
                 if (item.name_localizations) s.setNameLocalizations(item.name_localizations)
-                if (item.description_localizations) s.setNameLocalizations(item.description_localizations)
+                if (item.description_localizations) s.setDescriptionLocalizations(item.description_localizations)
 
 
                 if ("autocomplete" in item) s.setAutocomplete(item.autocomplete);
@@ -100,110 +117,3 @@ function format_options<T extends SlashCommandBuilder | SlashCommandSubcommandBu
     }
     return command;
 }
-
-// function format_options<T extends SlashCommandBuilder | SlashCommandSubcommandBuilder>(command: T, subcommand: Option): T {
-//     if (subcommand.text_input) {
-//         for (const item of subcommand.text_input) {
-//             command.addStringOption(s => {
-//                 s.setName(item.name)
-//                 if (item.description) s.setDescription(item.description)
-//                 if (item.required) s.setRequired(item.required)
-//                 if (item.autocomplete) s.setAutocomplete(item.autocomplete)
-//                 if (item.choises) s.addChoices(...item.choises)
-//                 if (item.max_length) s.setMaxLength(item.max_length)
-//                 if (item.min_length) s.setMinLength(item.min_length)
-//                 return s
-//             })
-//         }
-//     }
-//     if (subcommand.integer_input) {
-//         for (const item of subcommand.integer_input) {
-//             command.addIntegerOption(s => {
-//                 s.setName(item.name)
-//                 if (item.description) s.setDescription(item.description)
-//                 if (item.required) s.setRequired(item.required)
-//                 if (item.autocomplete) s.setAutocomplete(item.autocomplete)
-//                 if (item.choises) s.addChoices(...item.choises)
-//                 if (item.max_value) s.setMaxValue(item.max_value)
-//                 if (item.min_value) s.setMinValue(item.min_value)
-//                 return s
-//             })
-//         }
-//     }
-//     if (subcommand.boolean_input) {
-//         for (const item of subcommand.boolean_input) {
-//             command.addBooleanOption(s => {
-//                 s.setName(item.name)
-//                 if (item.description) s.setDescription(item.description)
-//                 if (item.required) s.setRequired(item.required)
-//                 return s
-//             })
-//         }
-//     }
-//     if (subcommand.user_input) {
-//         for (const item of subcommand.user_input) {
-//             command.addUserOption(s => {
-//                 s.setName(item.name)
-//                 if (item.description) s.setDescription(item.description)
-//                 if (item.required) s.setRequired(item.required)
-//                 return s
-//             })
-//         }
-//     }
-//     if (subcommand.channel_input) {
-//         for (const item of subcommand.channel_input) {
-//             command.addChannelOption(s => {
-//                 s.setName(item.name)
-//                 if (item.description) s.setDescription(item.description)
-//                 if (item.required) s.setRequired(item.required)
-//                 if (item.channel_types) s.addChannelTypes(...item.channel_types)
-//                 return s
-//             })
-//         }
-//     }
-//     if (subcommand.role_input) {
-//         for (const item of subcommand.role_input) {
-//             command.addRoleOption(s => {
-//                 s.setName(item.name)
-//                 if (item.description) s.setDescription(item.description)
-//                 if (item.required) s.setRequired(item.required)
-//                 return s
-//             })
-//         }
-//     }
-//     if (subcommand.mentionable_input) {
-//         for (const item of subcommand.mentionable_input) {
-//             command.addMentionableOption(s => {
-//                 s.setName(item.name)
-//                 if (item.description) s.setDescription(item.description)
-//                 if (item.required) s.setRequired(item.required)
-//                 return s
-//             })
-//         }
-//     }
-//     if (subcommand.number_input) {
-//         for (const item of subcommand.number_input) {
-//             command.addNumberOption(s => {
-//                 s.setName(item.name)
-//                 if (item.description) s.setDescription(item.description)
-//                 if (item.required) s.setRequired(item.required)
-//                 if (item.autocomplete) s.setAutocomplete(item.autocomplete)
-//                 if (item.choises) s.addChoices(...item.choises)
-//                 if (item.max_value) s.setMaxValue(item.max_value)
-//                 if (item.min_value) s.setMinValue(item.min_value)
-//                 return s
-//             })
-//         }
-//     }
-//     if (subcommand.attachment_input) {
-//         for (const item of subcommand.attachment_input) {
-//             command.addAttachmentOption(s => {
-//                 s.setName(item.name)
-//                 if (item.description) s.setDescription(item.description)
-//                 if (item.required) s.setRequired(item.required)
-//                 return s
-//             })
-//         }
-//     }
-//     return command
-// }

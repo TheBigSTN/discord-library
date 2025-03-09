@@ -1,5 +1,13 @@
-import { ApplicationCommandOptionAllowedChannelTypes, Collection, LocalizationMap, RESTPostAPIChatInputApplicationCommandsJSONBody } from "discord.js";
-import { Base } from "./classes";
+import {
+    ApplicationCommandOptionAllowedChannelTypes,
+    Collection,
+    InteractionContextType,
+    LocalizationMap,
+    PermissionFlagsBits,
+    Permissions,
+    RESTPostAPIChatInputApplicationCommandsJSONBody
+} from "discord.js";
+import { Base, Commandfile } from "./classes";
 
 declare module "discord.js" {
     export interface Client {
@@ -13,7 +21,6 @@ declare module "discord.js" {
 export interface CommandObj extends Base {
     data: RESTPostAPIChatInputApplicationCommandsJSONBody
 }
-
 export interface SharedProp {
     name: string
     name_localizations?: LocalizationMap
@@ -22,6 +29,9 @@ export interface SharedProp {
 }
 
 export interface Command extends SharedProp, Option {
+    nsfw?: boolean
+    context?: InteractionContextType
+    permisions: (keyof typeof PermissionFlagsBits)[]
     subcommands?: Subcommand[]
     subcommandgroups?: Subcommandgroup[]
 }
@@ -35,13 +45,12 @@ export interface Subcommandgroup extends SharedProp {
 interface OptionShared<T> extends SharedProp {
     required?: boolean
     autocomplete?: boolean
-    choises?: Choises<T>[]
+    choises?: {
+        name: string
+        value: T
+    }[]
 }
 
-interface Choises<T> {
-    name: string
-    value: T
-}
 export interface Option {
     text_input?: Text_Option[]
     integer_input?: Integer_Option[]
@@ -54,21 +63,33 @@ export interface Option {
     attachment_input?: Basic_Option[]
 }
 
-interface Text_Option extends OptionShared<string> {
+/**
+ * Self explanatory
+ */
+export interface Text_Option extends OptionShared<string> {
     max_length?: number
     min_length?: number
 }
 
-interface Integer_Option extends OptionShared<number> {
+/**
+ * Self explanatory
+ */
+export interface Integer_Option extends OptionShared<number> {
     max_value?: number
     min_value?: number
 }
 
-interface Channel_Option extends SharedProp {
+/**
+ * Self explanatory
+ */
+export interface Channel_Option extends SharedProp {
     required?: boolean
     channel_types?: ApplicationCommandOptionAllowedChannelTypes[]
 }
 
-interface Basic_Option extends SharedProp {
+/**
+ * Self explanatory
+ */
+export interface Basic_Option extends SharedProp {
     required?: boolean
 }

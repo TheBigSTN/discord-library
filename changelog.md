@@ -1,5 +1,12 @@
 # V 1.0.0
 
+## V 1.4.0
+
+- Description localizations used setNameLocalizations instead of setDescriptionLocalizations
+- Added Default Command Permisions
+- Added NSFW tag
+- Added Contexts like if the comand is guild or groups or dm
+
 ## V 1.3.1
 
 - Fixed the issue where the program was stoped without any way of continuing
