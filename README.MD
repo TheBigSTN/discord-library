@@ -1,6 +1,17 @@
 # This is my discord bot project
 
-This is kinda outdated the new docs are [here](./docs-source/Getting_Started.md)
+## Important
+
+This wiki is outdated the new docs are [here](https://thebigstn.github.io/discord-library).
+But is the only one that explains the whole library.
+
+This libary is still in devalopment and if you have any sugestions you can post them on github.
+
+The development of this lib is slow because i started to make a discord bot with this library in order to test it.
+Even at small scale it revealed a lot of problems like the loadcommands method dosen't work, the types wore a little bit off.
+As i said **Any** sugestions are helpful. Any feature requests, Anything realy.
+
+## [Changelog](./changelog.md)
 
 ## ● Description
 
@@ -16,31 +27,9 @@ Use the [discord.js](https://discordjs.guide) documentation for more in depth di
 To start you need to first get your bot token and application id
 you get both of those from [here](https://discord.com/developers/applications) where you select or make your application.
 
-You then need to store this data somewere you can place it in a json file but be carefull if you use github make sure you git ignore that file.
+You then need to store this data somewere you can place it in a json file but be carefull if you use github make sure you gitignore that file.
 
-<!-- If you use typescript this is the tsconfig of this pakage
-```json
-{
-  "compilerOptions": {
-      "target": "ES2022",
-      "module": "CommonJS",
-      "moduleResolution": "Node",
-      "allowJs": true,
-      "strict": true,
-      "noImplicitAny": true,
-      "declaration": false,
-      "skipLibCheck": true,
-      "strictNullChecks": true,
-      "resolveJsonModule": true,
-      "outDir": "dist",
-      "sourceMap": true
-  },
-  "include": ["src"],
-  "exclude": ["node_modules"]
-}
-``` -->
-
-This project was made for typescript but it supports javascript as whel but without the types
+This project was made for typescript but it supports javascript as well but without the types
 
 In your main file you need to first import the DiscordBot class from this pakage
 
@@ -112,7 +101,7 @@ module.exports = {
 };
 ```
 
-For JS users you need t oremove the types and replace import with const ... = require("...")
+For JS users you need to remove the types and replace import with const ... = require("...")
 
 The bot class has a default on login event so you dont need to add one.
 
@@ -168,17 +157,17 @@ You can add as many commands paths to the function as you whant.
 To create a valid command file and you use typescript you can use the Commandfile & Commandfile_Old classes to get intelisense when making the file otherwize its not required.
 
 ```ts
-import { ChatInputCommandInteraction } from "discord.js"
+import { ChatInputCommandInteraction } from "discord.js";
 
-export new CommandFile({
-  data:{
-    name:"ping",
-    description:"Pings you"
+export default new CommandFile({
+  data: {
+    name: "ping",
+    description: "Pings you",
   },
   execute(interaction: ChatInputCommandInteraction) {
-    interaction.reply("Pong")
-  }
-})
+    interaction.reply("Pong");
+  },
+});
 ```
 
 This is a basic ping command that uses that class for intelisense
@@ -187,16 +176,14 @@ The diference between the CommandFile & Commandfile_Old is that in the old varia
 Example:
 
 ```ts
-import { ChatInputCommandInteraction, SlashCommandBuilder} from "discord.js"
+import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 
-export new CommandFile({
-  data: new SlashCommandBuilder()
-		.setName("ping")
-		.setDescription("Pings you!"),
+export default new CommandFile({
+  data: new SlashCommandBuilder().setName("ping").setDescription("Pings you!"),
   execute(interaction: ChatInputCommandInteraction) {
-    interaction.reply("Pong")
-  }
-})
+    interaction.reply("Pong");
+  },
+});
 ```
 
 The Commandfile_Old is still included because some of the features of SlashCommandBuilder are not yet in the obj definition way of CommandFile
@@ -249,18 +236,18 @@ You need the exact server/guild id to make this to work
 It works on all the loading commands functions the pakage has so far
 
 ```js
-import { ChatInputCommandInteraction } from "discord.js"
+import { ChatInputCommandInteraction } from "discord.js";
 
-export new CommandFile({
-  data:{
-    name:"ping",
-    description:"Pings you"
+export default new CommandFile({
+  data: {
+    name: "ping",
+    description: "Pings you",
   },
   guild: ["809820980285276210"],
   execute(interaction: ChatInputCommandInteraction) {
-    interaction.reply("Pong")
-  }
-})
+    interaction.reply("Pong");
+  },
+});
 ```
 
 You just need to add the servers you whant that comand to get registered in.

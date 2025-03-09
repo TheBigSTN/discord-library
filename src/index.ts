@@ -1,9 +1,10 @@
-import { Client, ClientOptions, Collection, GatewayIntentBits, REST, Routes } from "discord.js"
+import { Client, ClientEvents, ClientOptions, Collection, GatewayIntentBits, REST, Routes } from "discord.js"
 import * as fs from "fs"
 import * as path from "path"
-import { Commandfile, Commandfile_Clasic as Commandfile_Old } from "./classes"
+import { Commandfile, Commandfile_Clasic as Commandfile_Old, EventFile } from "./classes"
 import { transpiledata } from "./commandjson"
 import { CommandObj } from "./types"
+import DefaultEvent from "./event"
 export * from "./types"
 export * from "./classes"
 
@@ -12,12 +13,14 @@ export interface DiscordBotArgs {
     clientid: string
     config?: ClientOptions
     disabledefault?: boolean
+    NoDefaultEvents?: boolean
 }
 
 export class DiscordBot {
+    private ready = false
     private readonly token: string
     private readonly clientid: string
-    readonly client: Client
+    readonly client: Client<true>
     constructor(data: DiscordBotArgs) {
         if (!data.token) {
             throw new Error("The bot token was not provided")
@@ -41,7 +44,12 @@ export class DiscordBot {
                 if (!client.user) return 1
                 console.info(`Ready! Logged in as ${client.user.tag}`)
             });
+        if (!data.NoDefaultEvents) {
+            this.loadevent(DefaultEvent)
+        }
+        this.client.once("ready", () => this.ready = true)
         this.client.commands = new Collection<string, CommandObj>()
+        while (!this.ready) { }
     }
     /**
      * Loads a command into the bot's command registry.
@@ -67,14 +75,12 @@ export class DiscordBot {
      */
     loadcommand(command: Commandfile): void {
         if (!command.data) {
-            console.error("You are missing the data propriety")
-            return
+            throw new Error(`You are missing the data propriety`)
         }
         if (!command.execute) {
-            console.error("You are missing the execute function")
-            return
+            throw new Error(`You are missing the execute function in the command /${command.data.name}`)
         }
-
+        console.log(`Loaded the command /${command.data.name}`)
         this.client.commands.set(command.data.name, command.transpile())
     }
     /**
@@ -84,13 +90,12 @@ export class DiscordBot {
     */
     loadcommand_old(command: Commandfile_Old) {
         if (!command.data) {
-            console.error("You are missing the data propriety")
-            return
+            throw new Error(`You are missing the data propriety`)
         }
         if (!command.execute) {
-            console.error("You are missing the execute function")
-            return
+            throw new Error(`You are missing the execute function in the command /${command.data.name}`)
         }
+        console.log(`Loaded the command /${command.data.name}`)
         this.client.commands.set(command.data.name, command.transpile())
     }
     /**
@@ -125,35 +130,30 @@ export class DiscordBot {
      * object with `data` and `execute` properties.
      */
     loadcommands(...paths: string[]) {
+        while (!this.client.isReady()) { }
         for (const pathz of paths) {
-            const dirs = fs.readdirSync(pathz)
+            const dirs = fs.readdirSync(pathz);
             for (const dir of dirs) {
-                const dirpath = path.join(pathz, dir)
-                const files = fs.readdirSync(dirpath)
+                const dirpath = path.join(pathz, dir);
+                const files = fs.readdirSync(dirpath);
                 for (const file of files) {
-                    const filepath = path.join(dirpath, file)
-                    const stats = fs.statSync(filepath)
-                    if (stats.isDirectory() && !(fs.existsSync(path.join(filepath, "index.ts")) || fs.existsSync(path.join(filepath, "index.js")))) {
-                        console.error("You are missing an index file at ", filepath)
-                        continue
-                    }
-                    if (stats.isFile() && !(file.endsWith(".ts") || file.endsWith(".js"))) {
-                        continue
-                    }
-                    const filedata = require(filepath)
-                    console.log(`Loaded the command /${file}`)
-                    if (filedata.data && filedata.execute) {
-                        if (filedata.data.toJSON) {
-                            filedata.data.toJSON()
-                        } else {
-                            filedata.data = transpiledata(filedata.data)
-                        }
-
-                    } else {
-                        console.warn(`[Warning] The command at ${filepath} does not have the required Data or execute Propriety`)
-                    }
+                    const filepath = path.join(dirpath, file);
+                    const stats = fs.statSync(filepath);
+                    if (stats.isFile() && !(file.endsWith(".ts") || file.endsWith(".js"))) continue;
+                    const data = require(filepath);
+                    this.loadcommand(data.default || data);
                 }
             }
+        }
+    }
+    loadevent<T extends keyof ClientEvents>(event: EventFile<T>) {
+        if (!event.name) throw new Error("The event name was not provided");
+        if (!event.execute) throw new Error("The event execute function was not provided");
+
+        if (event.once) {
+            this.client.once(event.name, (...args) => event.execute(...args));
+        } else {
+            this.client.on(event.name, (...args) => event.execute(...args));
         }
     }
     /**
@@ -167,11 +167,7 @@ export class DiscordBot {
             for (const file of filenames) {
                 const filepath = path.join(eventpath, file)
                 const event = require(filepath)
-                if (event.once) {
-                    this.client.once(event.name, (...args) => event.execute(...args))
-                } else {
-                    this.client.on(event.name, (...args) => event.execute(...args))
-                }
+                this.loadevent(event.default || event)
             }
         }
     }
@@ -179,7 +175,8 @@ export class DiscordBot {
      * It registers the commands to discord meaning that from the moment you run this all the commands that you loaded using loadcommand(_old) and loadcommands 
      * are going to be updated on discord
      */
-    registercommands() {
+    async registercommands() {
+        while (!this.ready) { }
         const commands = []
         for (const eventpath of this.client.commands.values()) {
             if (!eventpath.guild) {
@@ -188,19 +185,20 @@ export class DiscordBot {
         }
         const rest = new REST().setToken(this.token);
 
-        (async () => {
+
+        try {
+            console.log(`Started refreshing ${commands.length} application (/) commands.`);
+            const data = await rest.put(
+                Routes.applicationCommands(this.clientid),
+                { body: commands },
+            );
             try {
-                console.log(`Started refreshing ${commands.length} application (/) commands.`);
-                const data = await rest.put(
-                    Routes.applicationCommands(this.clientid),
-                    { body: commands },
-                );
                 //@ts-ignore
                 console.log(`Successfully reloaded ${data.length} application (/) commands.`);
-            } catch (error) {
-                console.error(error);
-            }
-        })()
+            } catch (error) { }
+        } catch (error) {
+            console.error(error);
+        }
 
         const guildscomm = new Collection<string, object[]>()
 
@@ -221,21 +219,21 @@ export class DiscordBot {
             }
         }
 
-        (async () => {
-            try {
-                for (const [key, value] of guildscomm.entries()) {
-                    console.log(`Started refreshing ${value.length} application (/) commands of guild ${key}`);
-                    const data = await rest.put(
-                        Routes.applicationGuildCommands(this.clientid, key),
-                        { body: value },
-                    );
-                    //@ts-ignore
-                    console.log(`Successfully reloaded ${data.length} application (/) commands of guild ${key}.`);
-                }
-            } catch (error) {
-                console.error(error);
+
+        try {
+            for (const [key, value] of guildscomm.entries()) {
+                console.log(`Started refreshing ${value.length} application (/) commands of guild ${key}`);
+                const data = await rest.put(
+                    Routes.applicationGuildCommands(this.clientid, key),
+                    { body: value },
+                );
+                //@ts-ignore
+                console.log(`Successfully reloaded ${data.length} application (/) commands of guild ${key}.`);
             }
-        })()
+        } catch (error) {
+            console.error(error);
+        }
+
     }
 }
 

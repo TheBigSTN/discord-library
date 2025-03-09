@@ -16,9 +16,9 @@ export interface CommandObj extends Base {
 
 export interface SharedProp {
     name: string
-    name_localizations: LocalizationMap
+    name_localizations?: LocalizationMap
     description?: string
-    description_localizations: LocalizationMap
+    description_localizations?: LocalizationMap
 }
 
 export interface Command extends SharedProp, Option {
