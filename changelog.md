@@ -1,5 +1,9 @@
 # V 1.0.0
 
+## V 1.3.1
+
+- Fixed the issue where the program was stoped without any way of continuing
+
 ## V 1.3.0
 
 - Moved the command Record inside the client with module Augumentation.

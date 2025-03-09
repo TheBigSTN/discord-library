@@ -47,9 +47,7 @@ export class DiscordBot {
         if (!data.NoDefaultEvents) {
             this.loadevent(DefaultEvent)
         }
-        this.client.once("ready", () => this.ready = true)
         this.client.commands = new Collection<string, CommandObj>()
-        while (!this.ready) { }
     }
     /**
      * Loads a command into the bot's command registry.
@@ -130,7 +128,6 @@ export class DiscordBot {
      * object with `data` and `execute` properties.
      */
     loadcommands(...paths: string[]) {
-        while (!this.client.isReady()) { }
         for (const pathz of paths) {
             const dirs = fs.readdirSync(pathz);
             for (const dir of dirs) {
@@ -176,7 +173,7 @@ export class DiscordBot {
      * are going to be updated on discord
      */
     async registercommands() {
-        while (!this.ready) { }
+        await new Promise(resolve => this.client.once("ready", resolve));
         const commands = []
         for (const eventpath of this.client.commands.values()) {
             if (!eventpath.guild) {
