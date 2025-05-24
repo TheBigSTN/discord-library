@@ -4,7 +4,7 @@ import {
     Interaction,
     SlashCommandBuilder
 } from "discord.js";
-import { transpiledata } from "./commandjson";
+import { transpiledata } from "./parsers/commandjson";
 import { Command, CommandObj } from "./types";
 
 export interface Base {

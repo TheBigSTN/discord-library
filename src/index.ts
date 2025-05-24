@@ -2,7 +2,7 @@ import { Client, ClientEvents, ClientOptions, Collection, GatewayIntentBits, RES
 import * as fs from "fs"
 import * as path from "path"
 import { Commandfile, Commandfile_Clasic as Commandfile_Old, EventFile } from "./classes"
-import { transpiledata } from "./commandjson"
+import { transpiledata } from "./parsers/commandjson"
 import { CommandObj } from "./types"
 import DefaultEvent from "./event"
 export * from "./types"

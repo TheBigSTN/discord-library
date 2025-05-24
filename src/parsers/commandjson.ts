@@ -1,5 +1,5 @@
 import { RESTPostAPIChatInputApplicationCommandsJSONBody, SlashCommandBuilder, SlashCommandSubcommandGroupBuilder, SlashCommandSubcommandBuilder, PermissionFlagsBits } from "discord.js"
-import { Command, Subcommandgroup, Subcommand, Option } from "./types"
+import { Command, Subcommandgroup, Subcommand, Option } from "../types"
 
 
 export function transpiledata(data: Command): RESTPostAPIChatInputApplicationCommandsJSONBody {

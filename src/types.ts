@@ -4,10 +4,9 @@ import {
     InteractionContextType,
     LocalizationMap,
     PermissionFlagsBits,
-    Permissions,
     RESTPostAPIChatInputApplicationCommandsJSONBody
 } from "discord.js";
-import { Base, Commandfile } from "./classes";
+import { Base } from "./classes";
 
 declare module "discord.js" {
     export interface Client {
@@ -31,7 +30,7 @@ export interface SharedProp {
 export interface Command extends SharedProp, Option {
     nsfw?: boolean
     context?: InteractionContextType
-    permisions: (keyof typeof PermissionFlagsBits)[]
+    permisions?: (keyof typeof PermissionFlagsBits)[]
     subcommands?: Subcommand[]
     subcommandgroups?: Subcommandgroup[]
 }
