@@ -1,11 +1,11 @@
 import { Client, ClientEvents, ClientOptions, Collection, GatewayIntentBits, REST, Routes } from "discord.js"
 import * as fs from "fs"
 import * as path from "path"
-import { Commandfile, Commandfile_Clasic as Commandfile_Old, EventFile } from "./classes"
-import { transpiledata } from "./parsers/commandjson"
-import { CommandObj } from "./types"
+import { EventFile } from "./classes"
 import DefaultEvent from "./event"
-export * from "./types"
+import { CommandFile, CommandFile_Clasic, CommandObj } from "./parsers/commandjson"
+export * from "./parsers/commandjson"
+export * from "./parsers/modalbuilder"
 export * from "./classes"
 
 export interface DiscordBotArgs {
@@ -14,6 +14,12 @@ export interface DiscordBotArgs {
     config?: ClientOptions
     disabledefault?: boolean
     NoDefaultEvents?: boolean
+}
+
+declare module "discord.js" {
+    export interface Client {
+        commands: Collection<string, CommandObj>;
+    }
 }
 
 export class DiscordBot {
@@ -70,30 +76,30 @@ export class DiscordBot {
      * @throws {Error} If the `command` object is missing the required `data` or `execute` properties, an error will be logged.
      * @throws {Error} If the `command.data` does not have a valid `name`, it may cause issues in registering the command.
      */
-    loadcommand(command: Commandfile): void {
-        if (!command.data) {
+    loadcommand(command: CommandFile): void {
+        if (!command.data.data) {
             throw new Error(`You are missing the data propriety`)
         }
-        if (!command.execute) {
-            throw new Error(`You are missing the execute function in the command /${command.data.name}`)
+        if (!command.data.execute) {
+            throw new Error(`You are missing the execute function in the command /${command.data.data.name}`)
         }
-        console.log(`Loaded the command /${command.data.name}`)
-        this.client.commands.set(command.data.name, command.transpile())
+        console.log(`Loaded the command /${command.data.data.name}`)
+        this.client.commands.set(command.data.data.name, command.transpile())
     }
     /**
      * @param command Should contain a SlashCommandBuilder
      * The same as loadcommand_old
      * @deprecated use the loadcommand method
     */
-    loadcommand_old(command: Commandfile_Old) {
-        if (!command.data) {
+    loadcommand_old(command: CommandFile_Clasic) {
+        if (!command.data.data) {
             throw new Error(`You are missing the data propriety`)
         }
-        if (!command.execute) {
-            throw new Error(`You are missing the execute function in the command /${command.data.name}`)
+        if (!command.data.execute) {
+            throw new Error(`You are missing the execute function in the command /${command.data.data.name}`)
         }
-        console.log(`Loaded the command /${command.data.name}`)
-        this.client.commands.set(command.data.name, command.transpile())
+        console.log(`Loaded the command /${command.data.data.name}`)
+        this.client.commands.set(command.data.data.name, command.transpile())
     }
     /**
      * Loads multiple commands into the bot's command registry from the specified directories.
