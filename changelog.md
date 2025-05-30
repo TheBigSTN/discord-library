@@ -1,5 +1,14 @@
 # V 1.0.0
 
+## V 1.5.0
+
+- The version rewrites the old command option system making you the user control the order of options.
+- The docs should have got or should get an update soon.
+
+### V 1.4.1
+
+- Fixed some oversights like descriptions optional on command options
+
 ## V 1.4.0
 
 - Description localizations used setNameLocalizations instead of setDescriptionLocalizations
