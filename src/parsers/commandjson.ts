@@ -34,7 +34,7 @@ export interface Command extends SharedProp {
     options?: Option[]
 }
 
-interface CommandFileProps {
+export interface CommandFileProps {
     data: Command
     guild?: string[]
     execute(interaction: ChatInputCommandInteraction): Promise<void>;
@@ -186,7 +186,7 @@ export class CommandFile {
     }
 }
 
-interface CommandFileProps_Clasic extends Omit<CommandFileProps, "data"> {
+export interface CommandFileProps_Clasic extends Omit<CommandFileProps, "data"> {
     data: SlashCommandBuilder;
 }
 
