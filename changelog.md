@@ -2,6 +2,11 @@
 
 ## V 1.5.0
 
+### V 1.5.2
+
+- You now can attach a beforeload interceptor when calling loadcommand.
+- Because of it you now have to wrap the paths in [] so you can pass the callback last
+
 ### V 1.5.1
 
 - Added a button builder.
