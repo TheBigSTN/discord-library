@@ -11,7 +11,7 @@ export interface ButtonBuilderProps {
 
 export class ButtonBuilder {
     private readonly buttonrow: ActionRowBuilder<ButtonBD> = new ActionRowBuilder<ButtonBD>();
-    data: ButtonBuilderProps[];
+    public readonly data: ButtonBuilderProps[];
 
     constructor(props: ButtonBuilderProps[]) {
         this.data = props;
@@ -19,8 +19,10 @@ export class ButtonBuilder {
             throw new Error("ButtonBuilder requires at least one button property");
         if (props.length > 25)
             throw new Error("ButtonBuilder can only have a maximum of 5 buttons in a row");
+    }
 
-        for (const prop of props) {
+    public build(): ActionRowBuilder<ButtonBD> {
+        for (const prop of this.data) {
             const button = new ButtonBD();
             if (!prop.customId && prop.style !== "Link")
                 throw new Error("Each non-Link button requires a customId");
@@ -45,5 +47,7 @@ export class ButtonBuilder {
 
             this.buttonrow.addComponents(button);
         }
+
+        return this.buttonrow;
     }
 }

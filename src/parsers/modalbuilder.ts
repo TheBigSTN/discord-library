@@ -18,25 +18,28 @@ export interface Component {
 }
 
 export class ModalBuilder {
-    private modal: ModalBD = new ModalBD();
+    private readonly modal: ModalBD = new ModalBD();
+    public readonly data: ModalBuilderProps;
 
     constructor(props: ModalBuilderProps) {
-        if (!props.title)
-            throw new Error('Title is required for ModalBuilder');
-        this.modal.setTitle(props.title)
-        if (!props.customId)
-            throw new Error('Custom ID is required for ModalBuilder');
-        this.modal.setCustomId(props.customId);
-        if (!props.components || props.components.length === 0)
-            throw new Error('Components are required for ModalBuilder');
-        if (props.components.length > 5)
-            throw new Error('A modal can only have a maximum of 5 components');
-        props.components.forEach(component =>
-            this.addComponent(component)
-        );
+        this.data = props;
     }
 
     public build(): ModalBD {
+        if (!this.data.title)
+            throw new Error('Title is required for ModalBuilder');
+        this.modal.setTitle(this.data.title)
+        if (!this.data.customId)
+            throw new Error('Custom ID is required for ModalBuilder');
+        this.modal.setCustomId(this.data.customId);
+        if (!this.data.components || this.data.components.length === 0)
+            throw new Error('Components are required for ModalBuilder');
+        if (this.data.components.length > 5)
+            throw new Error('A modal can only have a maximum of 5 components');
+        this.data.components.forEach(component =>
+            this.addComponent(component)
+        );
+
         return this.modal
     }
 

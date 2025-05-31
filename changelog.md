@@ -2,6 +2,16 @@
 
 ## V 1.5.0
 
+### V 1.5.4
+
+- Forgot to add a build method on the ButtonBuilder and such it was unusable.
+- Modified the build prop on ModalBuilder so that it does the thing the name suggests.
+- At the same time made some atributes readonly to prevent them from overwritter.
+
+### V 1.5.3
+
+- Added some exports from the modal file. Forgot to add them.
+
 ### V 1.5.2
 
 - You now can attach a beforeload interceptor when calling loadcommand.
