@@ -1,12 +1,12 @@
 import { ActionRowBuilder, ModalBuilder as ModalBD, TextInputBuilder, TextInputStyle } from 'discord.js';
 
-interface ModalBuilderProps {
+export interface ModalBuilderProps {
     title: string;
     customId: string;
     components?: Component[];
 }
 
-interface Component {
+export interface Component {
     customId: string;
     label: string;
     style: TextInputStyle;
