@@ -132,7 +132,7 @@ export class DiscordBot {
      * In this example, the method will load all command files from the provided directories. Each file must export a valid command 
      * object with `data` and `execute` properties.
      */
-    loadcommands(...paths: string[]) {
+    loadcommands(paths: string[], beforeload?: (command: CommandFile) => void | CommandFile | undefined) {
         for (const pathz of paths) {
             const dirs = fs.readdirSync(pathz);
             for (const dir of dirs) {
@@ -143,7 +143,13 @@ export class DiscordBot {
                     const stats = fs.statSync(filepath);
                     if (stats.isFile() && !(file.endsWith(".ts") || file.endsWith(".js"))) continue;
                     const data = require(filepath);
-                    this.loadcommand(data.default || data);
+                    let command = data.default || data;
+                    if (beforeload) {
+                        const result = beforeload(command);
+                        if (result === undefined) continue;
+                        if (result instanceof CommandFile) command = result;
+                    }
+                    this.loadcommand(command);
                 }
             }
         }
