@@ -1,6 +1,13 @@
-# V 1.0.0
+# V 1
 
-## V 1.5.0
+## V 1.6
+
+### V 1.6.0
+
+- Made the refresh command method smarter it now should only refresh modified commands. With the addition of the --refresh--all console flag that makes it refresh all commands. Or with the RefreshAll bot config.
+- Re-fixed the optional description on command options that has to be required
+
+## V 1.5
 
 ### V 1.5.4
 
@@ -27,7 +34,7 @@
 - The version rewrites the old command option system making you the user control the order of options.
 - The docs should have got or should get an update soon.
 
-## V 1.4.0
+## V 1.4
 
 ### V 1.4.1
 
@@ -40,7 +47,7 @@
 - Added NSFW tag
 - Added Contexts like if the comand is guild or groups or dm
 
-## V 1.3.0
+## V 1.3
 
 ### V 1.3.1
 

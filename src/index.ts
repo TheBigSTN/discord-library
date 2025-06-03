@@ -1,9 +1,10 @@
-import { Client, ClientEvents, ClientOptions, Collection, GatewayIntentBits, REST, Routes } from "discord.js"
+import { Client, ClientEvents, ClientOptions, Collection, GatewayIntentBits, REST, RESTPostAPIChatInputApplicationCommandsJSONBody, Routes } from "discord.js"
 import * as fs from "fs"
 import * as path from "path"
 import { EventFile } from "./classes"
 import DefaultEvent from "./event"
 import { CommandFile, CommandFile_Clasic, CommandObj } from "./parsers/commandjson"
+import { CommandHashService } from "./parsers/ShaService"
 export * from "./parsers/buttonbuilder"
 export * from "./parsers/commandjson"
 export * from "./parsers/modalbuilder"
@@ -15,6 +16,7 @@ export interface DiscordBotArgs {
     config?: ClientOptions
     disabledefault?: boolean
     NoDefaultEvents?: boolean
+    refreshAll?: boolean
 }
 
 declare module "discord.js" {
@@ -26,34 +28,36 @@ declare module "discord.js" {
 export class DiscordBot {
     private readonly token: string
     private readonly clientid: string
+    private readonly shaService;
     readonly client: Client<true>
     constructor(data: DiscordBotArgs) {
         if (!data.token) {
-            throw new Error("The bot token was not provided")
+            throw new Error("The bot token was not provided");
         }
-        this.token = data.token
+        this.token = data.token;
         if (!data.clientid) {
-            throw new Error("The aplication id was not provided")
+            throw new Error("The aplication id was not provided");
         }
-        this.clientid = data.clientid
+        this.clientid = data.clientid;
         if (!data.config) {
-            console.warn("Bot config not detected. Using default configuration")
+            console.warn("Bot config not detected. Using default configuration");
             this.client = new Client({
                 intents: [GatewayIntentBits.Guilds]
-            })
+            });
         } else {
-            this.client = new Client(data.config)
+            this.client = new Client(data.config);
         }
         this.client.login(this.token)
         if (!data.disabledefault)
             this.client.once("ready", client => {
-                if (!client.user) return 1
-                console.info(`Ready! Logged in as ${client.user.tag}`)
+                if (!client.user) return;
+                console.info(`Ready! Logged in as ${client.user.tag}`);
             });
         if (!data.NoDefaultEvents) {
-            this.loadevent(DefaultEvent)
+            this.loadevent(DefaultEvent);
         }
-        this.client.commands = new Collection<string, CommandObj>()
+        this.client.commands = new Collection<string, CommandObj>();
+        this.shaService = new CommandHashService(data.refreshAll);
     }
     /**
      * Loads a command into the bot's command registry.
@@ -85,6 +89,7 @@ export class DiscordBot {
             throw new Error(`You are missing the execute function in the command /${command.data.data.name}`)
         }
         console.log(`Loaded the command /${command.data.data.name}`)
+        this.shaService.check(command.data.data);
         this.client.commands.set(command.data.data.name, command.transpile())
     }
     /**
@@ -100,6 +105,7 @@ export class DiscordBot {
             throw new Error(`You are missing the execute function in the command /${command.data.data.name}`)
         }
         console.log(`Loaded the command /${command.data.data.name}`)
+        this.shaService.check(command.data.data)
         this.client.commands.set(command.data.data.name, command.transpile())
     }
     /**
@@ -187,10 +193,14 @@ export class DiscordBot {
     async registercommands() {
         await new Promise(resolve => this.client.once("ready", resolve));
         const commands = []
-        for (const eventpath of this.client.commands.values()) {
-            if (!eventpath.guild) {
-                commands.push(eventpath.data)
+        for (const [commandName] of this.shaService.staleCommands) {
+            const command = this.client.commands.get(commandName);
+            if (!command) {
+                console.error(`Command ${commandName} not found in the client commands collection.`);
+                continue;
             }
+            if (command.guild) continue
+            commands.push(command.data);
         }
         const rest = new REST().setToken(this.token);
 
@@ -201,6 +211,7 @@ export class DiscordBot {
                 Routes.applicationCommands(this.clientid),
                 { body: commands },
             );
+            commands.forEach(command => this.shaService.updateSha(command.name));
             try {
                 //@ts-ignore
                 console.log(`Successfully reloaded ${data.length} application (/) commands.`);
@@ -209,25 +220,31 @@ export class DiscordBot {
             console.error(error);
         }
 
-        const guildscomm = new Collection<string, object[]>()
+        const guildscomm = new Collection<string, RESTPostAPIChatInputApplicationCommandsJSONBody[]>()
 
-        for (const eventvalue of this.client.commands.values()) {
-            if (!eventvalue.guild) continue
-            for (const guild of eventvalue.guild) {
+        for (const command of this.shaService.staleCommands.entries()) {
+            const commandObj = this.client.commands.get(command[0]);
+            if (!commandObj) {
+                console.error(`Command ${command[0]} not found in the client commands collection.`);
+                continue;
+            }
+            if (!commandObj.guild) continue
+
+            for (const guild of commandObj.guild) {
                 if (guildscomm.has(guild)) {
-                    let temp = guildscomm.get(guild)
+                    const temp = guildscomm.get(guild)
                     if (!temp) {
                         console.error("An error ocured")
                         continue
                     }
-                    temp.push(eventvalue.data)
+                    temp.push(commandObj.data)
                     guildscomm.set(guild, temp)
                 } else {
-                    guildscomm.set(guild, [eventvalue.data])
+                    guildscomm.set(guild, [commandObj.data])
                 }
             }
-        }
 
+        }
 
         try {
             for (const [key, value] of guildscomm.entries()) {
@@ -236,6 +253,7 @@ export class DiscordBot {
                     Routes.applicationGuildCommands(this.clientid, key),
                     { body: value },
                 );
+                value.forEach(command => this.shaService.updateSha(command.name));
                 //@ts-ignore
                 console.log(`Successfully reloaded ${data.length} application (/) commands of guild ${key}.`);
             }
@@ -243,6 +261,9 @@ export class DiscordBot {
             console.error(error);
         }
 
+        this.shaService.cleanup();
+        this.shaService.save();
+        console.log("All commands have been registered and updated successfully.");
     }
 }
 

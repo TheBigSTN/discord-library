@@ -9,6 +9,7 @@ import {
     InteractionContextType,
     ApplicationCommandOptionAllowedChannelTypes
 } from "discord.js"
+import { CommandHashService } from "./ShaService"
 
 export interface SharedProp {
     name: string
@@ -52,6 +53,7 @@ interface OptionBase<T> extends SharedProp {
 
 type Option = {
     type: "channel",
+    description: string
     required?: boolean
     channel_types?: ApplicationCommandOptionAllowedChannelTypes[]
 } & SharedProp | {
@@ -60,6 +62,7 @@ type Option = {
     min_length?: number
 } & OptionBase<string> | {
     type: "boolean" | "user" | "mentionable" | "attachment" | "role",
+    description: string
     required?: boolean
 } & SharedProp | {
     type: "integer" | "number",
@@ -75,6 +78,7 @@ export class CommandFile {
     transpiled: SlashCommandBuilder = new SlashCommandBuilder()
     command;
     data: CommandFileProps
+
     constructor(data: CommandFileProps) {
         this.command = data.data;
         this.data = data;
