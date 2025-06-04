@@ -32,6 +32,7 @@ export class DiscordBot {
     readonly config: DiscordBotArgs;
     readonly client: Client<true>
     constructor(data: DiscordBotArgs) {
+        if (process.argv.includes("--refresh-all")) data.refreshAll = true;
         this.config = data;
         if (!data.token) {
             throw new Error("The bot token was not provided");
@@ -232,7 +233,7 @@ export class DiscordBot {
             try {
                 console.log(`Started refreshing ${commands.length} application (/) commands.`);
 
-                const method = this.config.refreshAll ? rest.patch : rest.put;
+                const method = this.config.refreshAll ? rest.patch.bind(rest) : rest.put.bind(rest);
                 const route = Routes.applicationCommands(this.clientid);
                 const data = await method(route, { body: commands });
 
@@ -249,7 +250,7 @@ export class DiscordBot {
                 for (const [key, value] of guildscomm.entries()) {
                     console.log(`Started refreshing ${value.length} application (/) commands of guild ${key}`);
 
-                    const method = this.config.refreshAll ? rest.patch : rest.put;
+                    const method = this.config.refreshAll ? rest.patch.bind(rest) : rest.put.bind(rest);
                     const route = Routes.applicationGuildCommands(this.clientid, key);
                     const data = await method(route, { body: value });
 
