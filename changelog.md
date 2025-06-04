@@ -2,6 +2,11 @@
 
 ## V 1.6
 
+### V 1.6.1
+
+- Made the refresh logs not apprear if commands were not updated.
+- And hopefully made it not remove all the bot commands. With smart registering.
+
 ### V 1.6.0
 
 - Made the refresh command method smarter it now should only refresh modified commands. With the addition of the --refresh--all console flag that makes it refresh all commands. Or with the RefreshAll bot config.

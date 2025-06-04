@@ -29,8 +29,10 @@ export class DiscordBot {
     private readonly token: string
     private readonly clientid: string
     private readonly shaService;
+    readonly config: DiscordBotArgs;
     readonly client: Client<true>
     constructor(data: DiscordBotArgs) {
+        this.config = data;
         if (!data.token) {
             throw new Error("The bot token was not provided");
         }
@@ -187,83 +189,84 @@ export class DiscordBot {
         }
     }
     /**
-     * It registers the commands to discord meaning that from the moment you run this all the commands that you loaded using loadcommand(_old) and loadcommands 
-     * are going to be updated on discord
+     * It registers the commands to discord.
+     * @since 1.6
+     * It is now smarter meaning that it will only register the commands that are not registered or have been changed.
+     * It uses the shaService to check if the command has been changed or not.
+     * The functionality can be disabled by passing refreshAll: true to the Bot constructor.
+     * By that you disable the smart registration.
      */
-    async registercommands() {
+    async registercommands(): Promise<void> {
         await new Promise(resolve => this.client.once("ready", resolve));
+
         const commands = []
-        for (const [commandName] of this.shaService.staleCommands) {
+        const guildscomm = new Collection<string, RESTPostAPIChatInputApplicationCommandsJSONBody[]>()
+
+        for (const [commandName] of this.shaService.staleCommands.entries()) {
             const command = this.client.commands.get(commandName);
             if (!command) {
                 console.error(`Command ${commandName} not found in the client commands collection.`);
                 continue;
             }
-            if (command.guild) continue
-            commands.push(command.data);
+            if (command.guild) {
+                for (const guild of command.guild) {
+                    if (guildscomm.has(guild)) {
+                        const temp = guildscomm.get(guild)
+                        if (!temp) {
+                            console.error("An error ocured")
+                            continue
+                        }
+                        temp.push(command.data)
+                        guildscomm.set(guild, temp)
+                    } else {
+                        guildscomm.set(guild, [command.data])
+                    }
+                }
+            } else {
+                commands.push(command.data);
+            }
         }
         const rest = new REST().setToken(this.token);
 
-
-        try {
-            console.log(`Started refreshing ${commands.length} application (/) commands.`);
-            const data = await rest.put(
-                Routes.applicationCommands(this.clientid),
-                { body: commands },
-            );
-            commands.forEach(command => this.shaService.updateSha(command.name));
+        if (commands.length > 0)
             try {
+                console.log(`Started refreshing ${commands.length} application (/) commands.`);
+
+                const method = this.config.refreshAll ? rest.patch : rest.put;
+                const route = Routes.applicationCommands(this.clientid);
+                const data = await method(route, { body: commands });
+
+                commands.forEach(command => this.shaService.updateSha(command.name));
+
                 //@ts-ignore
                 console.log(`Successfully reloaded ${data.length} application (/) commands.`);
-            } catch (error) { }
-        } catch (error) {
-            console.error(error);
-        }
-
-        const guildscomm = new Collection<string, RESTPostAPIChatInputApplicationCommandsJSONBody[]>()
-
-        for (const command of this.shaService.staleCommands.entries()) {
-            const commandObj = this.client.commands.get(command[0]);
-            if (!commandObj) {
-                console.error(`Command ${command[0]} not found in the client commands collection.`);
-                continue;
+            } catch (error) {
+                console.error(error);
             }
-            if (!commandObj.guild) continue
 
-            for (const guild of commandObj.guild) {
-                if (guildscomm.has(guild)) {
-                    const temp = guildscomm.get(guild)
-                    if (!temp) {
-                        console.error("An error ocured")
-                        continue
-                    }
-                    temp.push(commandObj.data)
-                    guildscomm.set(guild, temp)
-                } else {
-                    guildscomm.set(guild, [commandObj.data])
+        if (guildscomm.size > 0)
+            try {
+                for (const [key, value] of guildscomm.entries()) {
+                    console.log(`Started refreshing ${value.length} application (/) commands of guild ${key}`);
+
+                    const method = this.config.refreshAll ? rest.patch : rest.put;
+                    const route = Routes.applicationGuildCommands(this.clientid, key);
+                    const data = await method(route, { body: value });
+
+                    value.forEach(command => this.shaService.updateSha(command.name));
+
+                    //@ts-ignore
+                    console.log(`Successfully reloaded ${data.length} application (/) commands of guild ${key}.`);
                 }
+            } catch (error) {
+                console.error(error);
             }
-
-        }
-
-        try {
-            for (const [key, value] of guildscomm.entries()) {
-                console.log(`Started refreshing ${value.length} application (/) commands of guild ${key}`);
-                const data = await rest.put(
-                    Routes.applicationGuildCommands(this.clientid, key),
-                    { body: value },
-                );
-                value.forEach(command => this.shaService.updateSha(command.name));
-                //@ts-ignore
-                console.log(`Successfully reloaded ${data.length} application (/) commands of guild ${key}.`);
-            }
-        } catch (error) {
-            console.error(error);
-        }
 
         this.shaService.cleanup();
         this.shaService.save();
-        console.log("All commands have been registered and updated successfully.");
+
+        if (commands.length > 0 && guildscomm.size > 0)
+            console.log("All commands have been registered and updated successfully.");
     }
 }
 
