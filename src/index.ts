@@ -192,10 +192,8 @@ export class DiscordBot {
     /**
      * It registers the commands to discord.
      * @since 1.6
-     * It is now smarter meaning that it will only register the commands that are not registered or have been changed.
-     * It uses the shaService to check if the command has been changed or not.
-     * The functionality can be disabled by passing refreshAll: true to the Bot constructor.
-     * By that you disable the smart registration.
+     * It is now smarter meaning that it will only register the commands only if they
+     * got changed or if the --refresh-all flag is used, or the refreshAll config is used.
      */
     async registercommands(): Promise<void> {
         await new Promise(resolve => this.client.once("ready", resolve));
@@ -203,12 +201,7 @@ export class DiscordBot {
         const commands = []
         const guildscomm = new Collection<string, RESTPostAPIChatInputApplicationCommandsJSONBody[]>()
 
-        for (const [commandName] of this.shaService.staleCommands.entries()) {
-            const command = this.client.commands.get(commandName);
-            if (!command) {
-                console.error(`Command ${commandName} not found in the client commands collection.`);
-                continue;
-            }
+        for (const [_name, command] of this.client.commands.entries()) {
             if (command.guild) {
                 for (const guild of command.guild) {
                     if (guildscomm.has(guild)) {
@@ -229,45 +222,49 @@ export class DiscordBot {
         }
         const rest = new REST().setToken(this.token);
 
-        if (commands.length > 0)
-            try {
-                console.log(`Started refreshing ${commands.length} application (/) commands.`);
+        if (this.shaService.staleCommands.size > 0) {
+            if (commands.length > 0)
+                try {
+                    console.log(`Started refreshing ${commands.length} application (/) commands.`);
 
-                const method = this.config.refreshAll ? rest.patch.bind(rest) : rest.put.bind(rest);
-                const route = Routes.applicationCommands(this.clientid);
-                const data = await method(route, { body: commands });
+                    const route = Routes.applicationCommands(this.clientid);
+                    const data = await rest.put(route, { body: commands });
 
-                commands.forEach(command => this.shaService.updateSha(command.name));
-
-                //@ts-ignore
-                console.log(`Successfully reloaded ${data.length} application (/) commands.`);
-            } catch (error) {
-                console.error(error);
-            }
-
-        if (guildscomm.size > 0)
-            try {
-                for (const [key, value] of guildscomm.entries()) {
-                    console.log(`Started refreshing ${value.length} application (/) commands of guild ${key}`);
-
-                    const method = this.config.refreshAll ? rest.patch.bind(rest) : rest.put.bind(rest);
-                    const route = Routes.applicationGuildCommands(this.clientid, key);
-                    const data = await method(route, { body: value });
-
-                    value.forEach(command => this.shaService.updateSha(command.name));
+                    commands.forEach(command => this.shaService.updateSha(command.name));
 
                     //@ts-ignore
-                    console.log(`Successfully reloaded ${data.length} application (/) commands of guild ${key}.`);
+                    console.log(`Successfully reloaded ${data.length} application (/) commands.`);
+                } catch (error) {
+                    console.error(error);
                 }
-            } catch (error) {
-                console.error(error);
-            }
+
+            if (guildscomm.size > 0)
+                try {
+                    for (const [key, value] of guildscomm.entries()) {
+                        console.log(`Started refreshing ${value.length} application (/) commands of guild ${key}`);
+
+                        const route = Routes.applicationGuildCommands(this.clientid, key);
+                        const data = await rest.put(route, { body: value });
+
+                        value.forEach(command => this.shaService.updateSha(command.name));
+
+                        //@ts-ignore
+                        console.log(`Successfully reloaded ${data.length} application (/) commands of guild ${key}.`);
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+        }
 
         this.shaService.cleanup();
         this.shaService.save();
 
-        if (commands.length > 0 && guildscomm.size > 0)
+        if (commands.length > 0 &&
+            guildscomm.size > 0 &&
+            this.shaService.staleCommands.size > 0)
             console.log("All commands have been registered and updated successfully.");
+        else
+            console.log("All commands are up to date.");
     }
 }
 

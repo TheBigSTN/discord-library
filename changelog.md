@@ -2,6 +2,20 @@
 
 ## V 1.6
 
+### V 1.6.4
+
+- Because i do not know if I can keep the extra smart feature of only registering changed commands. I made it register all commands only if any command changed.
+- Updaded the docs. By that i mean that I runned typedoc.
+
+### V 1.6.3
+
+- No ideea what happened with the 1.6.2 npm push but it won't let me use it.
+- Apart from the version change nothing else changed.
+
+### V 1.6.2
+
+- Fixed a bug that rendered register commands broker.
+
 ### V 1.6.1
 
 - Made the refresh logs not apprear if commands were not updated.

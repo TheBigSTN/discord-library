@@ -1,6 +1,6 @@
 {
   "name": "discord-library",
-  "version": "1.6.3",
+  "version": "1.6.4",
   "description": "Useful and easy discord bot library",
   "main": "./dist/index.js",
   "types": "./dist/index.d.js",
@@ -15,6 +15,7 @@
     "prepublishOnly": "npm run build"
   },
   "keywords": [
+    "discord app",
     "discordapp",
     "discord",
     "bot",

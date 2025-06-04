@@ -41,7 +41,7 @@ export interface CommandFileProps {
     execute(interaction: ChatInputCommandInteraction): Promise<void>;
 }
 
-interface OptionBase<T> extends SharedProp {
+export interface OptionBase<T> extends SharedProp {
     description: string
     required?: boolean
     autocomplete?: boolean
@@ -51,7 +51,7 @@ interface OptionBase<T> extends SharedProp {
     }[]
 }
 
-type Option = {
+export type Option = {
     type: "channel",
     description: string
     required?: boolean
