@@ -2,11 +2,13 @@
 title: Getting Started
 children:
   - ./Starting.md
+  - ./First_Command.md
 ---
 
 # Getting Started
 
 Welcome to the documentation for the Discord Bot Library! This guide will help you get started with setting up and using the bot, step by step.
+As this documentation is not complete and i know how to use it best (since i made it) you can check my discord bot [here](https://github.com/TheBigSTN/Discord-Bot). Feel free to take inspiration from there if this documentation does not help you.
 
 ## Prerequisites
 

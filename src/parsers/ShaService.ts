@@ -7,6 +7,10 @@ import { ref } from "process";
 
 const HASH_FILE = path.join(process.cwd(), "command-hashes.json");
 
+/**
+ * This service is used internaly by this library to track modifications to commands.
+ * It computes a hash for each command and stores it in a JSON file (command-hashes.json).
+ */
 export class CommandHashService {
     private readonly hashes: Record<string, string> = {};
     private readonly refreshInstance;

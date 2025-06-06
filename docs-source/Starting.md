@@ -5,57 +5,48 @@ parent: Getting Started.md
 
 # Main file
 
-Most of this library functionaliy gets exposed trought the default export of this library or the Discordbot export.
+This library supports js and js. This tutorial is going to be în ts.
 
-This class defines the discord bot.
-You can import the class via:
+In order to start you have to import the Discordbot class.
 
-```javascript
-import Discordbot from ("discord-library");
-// The default export you can give it any name yout whant
+```typescript
 import { Discordbot } from ("discord-library")
-// The named export both are the same thing.
-
-// And if you use javascript and not typescript
+// Keep in mind that js uses this sintax
 const { Discordbot } = require("discord-library")
 ```
 
-After importing the class you need to create an instance of the class with
+You then need to create the bot by calling new with the just imported class
 
 ```ts
-const bot = new DiscordBot();
+const bot = new DiscordBot(/* ... */);
 ```
-
-Keep in mind that the above code is not complete and should not be used.
-More info in tbe section [here](#configuration)
 
 ## Configuration
 
-Most configuration is more explained [here](https://discordjs.guide/preparations) and it's recomended that you folow that tutorial as it's more in depth and this library wraps that guide coding style.
+In order to get the token, create the discord bot, or get the client id folow this tutorial [here](https://discordjs.guide/preparations).
 
-When declaring the bot you need to give it the configuration.
+When creating the bot you need to give it the configuration.
 
 The configuration format is:
 
-```json
-{
-  "token": "your token goes here",
-  "clientid": "your aplication id goes here",
-  "config": {}, // This is the config that gets passed to discord more on that later
-  "disabledefault": true // default false
-}
+```js
+const bot = new Discordbot({
+  token: "your token goes here",
+  clientid: "your aplication id goes here",
+  config: {}, // This is the config that gets passed to discord more on that later
+  disabledefault: true, // default false
+});
 ```
 
-You can pass the configuration directly or write it inside a json file.
-
-If you use git place the token in a git ignored file
+If you use git store the token inside an env variable or a .env file.
 
 The bot **needs** the token.
 The aplication id is used if you need to update commands.
+But it is required.
 
 ### Config
 
-This propriety is the bot configuration. If not specified then the bot gets the defuult configuration
+This propriety is the bot configuration discord side. If config not specified the default value is:
 
 ```ts
 new Client({
@@ -63,4 +54,4 @@ new Client({
 });
 ```
 
-Otherwise it gets what you give it with the config propriety.
+More information about GatewayIntentBits [here](https://discordjs.guide/popular-topics/intents.html)

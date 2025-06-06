@@ -19,12 +19,20 @@ export interface Component {
 
 export class ModalBuilder {
     private readonly modal: ModalBD = new ModalBD();
+    /**
+     * This is the data passed to the ModalBuilder constructor.
+     */
     public readonly data: ModalBuilderProps;
 
     constructor(props: ModalBuilderProps) {
         this.data = props;
     }
 
+    /**
+     * 
+     * @returns The built Modal object.
+     * @throws Error if title, customId, or components are not provided.
+     */
     public build(): ModalBD {
         if (!this.data.title)
             throw new Error('Title is required for ModalBuilder');

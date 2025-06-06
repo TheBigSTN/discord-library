@@ -1,7 +1,6 @@
 import {
     ClientEvents,
 } from "discord.js";
-import { CommandObj } from "./parsers/commandjson";
 
 export interface EventFile<T extends keyof ClientEvents> {
     once?: boolean;

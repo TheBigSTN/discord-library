@@ -2,9 +2,15 @@
 
 ## V 1.6
 
+### V 1.6.5
+
+- Big update to documentation.
+- Fixed the Button builder and now you realy can add 25 buttons as advertised and not 5 till discord js complains.
+
 ### V 1.6.4
 
 - Because i do not know if I can keep the extra smart feature of only registering changed commands. I made it register all commands only if any command changed.
+- Updaded the docs. By that i mean that I runned typedoc.
 
 ### V 1.6.3
 

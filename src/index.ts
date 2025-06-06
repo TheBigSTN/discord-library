@@ -122,11 +122,11 @@ export class DiscordBot {
      * the bot's command registry. Once validated, each command is added to the bot's internal command collection.
      * That can be accesed in the client.commands propriety from the main class (DiscordBot)
      *
-     * The files must be placed in a 2 dimentional directory like: commands/utility/ping.ts or commands/utility/ping.js.
+     * The files must be placed in a 2 dimentional directory like: commands/utility/ping.ts or commands/server/ping.js.
      * Where the path to commands gets passed to the method like:
      * @example
      * ```
-     * loadcommands('./commands');
+     * loadcommands([path.join(__dirname, './commands')]);
      * ```
      * Asuming that the main file is in the same directory as the commands directory
      * 
@@ -136,11 +136,22 @@ export class DiscordBot {
      * 
      * @example
      * ```
-     * loadcommands('path/to/commands', 'path/to/another/commands');
+     * loadcommands(['path/to/commands', 'path/to/another/commands']);
      * ```
      * 
      * In this example, the method will load all command files from the provided directories. Each file must export a valid command 
      * object with `data` and `execute` properties.
+     * * @param {function} [beforeload] - An optional function that can be called before loading each command.
+     * It can be used to modify the command or perform additional checks.
+     * Or if you want to add a handler like a button handler or a modal handler. You can use 
+     * ```
+        declare module "discord-library" {
+            export interface CommandFileProps {
+                button?(interaction: ButtonInteraction): void | Promise<void>;
+            }
+        }
+        ```
+        Then if you use loadcommands you can load the custom button prop with it.
      */
     loadcommands(paths: string[], beforeload?: (command: CommandFile) => void | CommandFile | undefined) {
         for (const pathz of paths) {
@@ -256,15 +267,13 @@ export class DiscordBot {
                 }
         }
 
-        this.shaService.cleanup();
-        this.shaService.save();
 
-        if (commands.length > 0 &&
-            guildscomm.size > 0 &&
-            this.shaService.staleCommands.size > 0)
+        if (this.shaService.staleCommands.size > 0)
             console.log("All commands have been registered and updated successfully.");
         else
             console.log("All commands are up to date.");
+        this.shaService.cleanup();
+        this.shaService.save();
     }
 }
 
