@@ -32,9 +32,12 @@ export class ButtonBuilder {
     }
 
     public build(): ActionRowBuilder<ButtonBD>[] {
-        for (var i = 0; i < 5; i++) {
+        const rows: ActionRowBuilder<ButtonBD>[] = [];
+        for (let i = 0; i < this.data.length; i += 5) {
             const row = new ActionRowBuilder<ButtonBD>();
-            for (const prop of this.data) {
+            const slice = this.data.slice(i, i + 5);
+
+            for (const prop of slice) {
                 const button = new ButtonBD();
                 if (!prop.customId && prop.style !== "Link")
                     throw new Error("Each non-Link button requires a customId");
@@ -59,9 +62,10 @@ export class ButtonBuilder {
 
                 row.addComponents(button);
             }
-            this.button.push(row);
+
+            rows.push(row);
         }
 
-        return this.button;
+        return rows;
     }
 }

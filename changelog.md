@@ -2,6 +2,10 @@
 
 ## V 1.6
 
+### V 1.6.7
+
+-Fixed a huge mistake with the Button builder that made it unusable
+
 ### V 1.6.6
 
 - Fixed the load events method is it loaded .map files if they existed.
