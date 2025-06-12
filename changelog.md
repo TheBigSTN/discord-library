@@ -2,10 +2,14 @@
 
 ## V 1.6
 
+### V 1.6.6
+
+- Fixed the load events method is it loaded .map files if they existed.
+
 ### V 1.6.5
 
 - Big update to documentation.
-- Fixed the Button builder and now you realy can add 25 buttons as advertised and not 5 till discord js complains.
+- Fixed the Button builder and now you realy can add 25 buttons as advertised and not 5 till discord library complains.
 
 ### V 1.6.4
 

@@ -194,6 +194,7 @@ export class DiscordBot {
         for (const eventpath of paths) {
             const filenames = fs.readdirSync(eventpath)
             for (const file of filenames) {
+                if (!(file.endsWith(".ts") || file.endsWith(".js"))) continue;
                 const filepath = path.join(eventpath, file)
                 const event = require(filepath)
                 this.loadevent(event.default || event)
