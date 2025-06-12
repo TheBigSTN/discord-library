@@ -2,6 +2,10 @@
 
 ## V 1.6
 
+### V 1.6.8
+
+- The exact same thing that hapened on version 1.6.3 hapened again.
+
 ### V 1.6.7
 
 -Fixed a huge mistake with the Button builder that made it unusable
